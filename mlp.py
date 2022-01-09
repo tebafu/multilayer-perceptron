@@ -33,12 +33,8 @@ class Mlp:
         """
         Initializes the weights for each node in the model between -0.5 and 0.5
 
-        Returns
-        -------
-        list
-            a list with all the weights for each layer/node
-            each element of said list represents a layer of the mlp as a numpy array.
-            the numpy array is 2d and has the weights of each node as a row vector
+        :return: list: a list with all the weights for each layer/node each element of said list represents a layer of
+        the mlp as a numpy array. the numpy array is 2d and has the weights of each node as a row vector
         """
         weights = []
         # starts from index 1 as the 0th element represents the input layer which has no weights
@@ -49,3 +45,22 @@ class Mlp:
             # numpy arrays to make dot products between layers easier
             weights.append(np.array(neuron_weights))
         return weights
+
+    # noinspection PyMethodMayBeStatic
+    def sigmoid(self, x):
+        """
+        basic sigmoid activation function
+        :param x: input
+        :return: sigmoid output
+        """
+        s = 1.0 / (1.0 + np.exp(-x))
+        return s
+
+    def sigmoid_derivative(self, x):
+        """
+        basic sigmoid derivative
+        :param x: input
+        :return: derivative of sigmoid
+        """
+        s = self.sigmoid(x) * (1 - self.sigmoid(x))
+        return s
