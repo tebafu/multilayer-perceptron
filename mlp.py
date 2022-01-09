@@ -64,3 +64,19 @@ class Mlp:
         """
         s = self.sigmoid(x) * (1 - self.sigmoid(x))
         return s
+
+    def forward_pass(self, x):
+        """
+        does a forward pass of the input through the neural network
+        :param x: the input
+        :return: v the outputs of each node without the activation function applied to it
+        :return: y final outputs of each node
+        """
+        current_input = np.array(x)
+        v = []
+        y = []
+        for layer in self.weights:
+            v.append(np.dot(layer, current_input))
+            y.append(self.sigmoid(v[-1]))
+            current_input = y[-1]
+        return v, y
