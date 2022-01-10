@@ -81,5 +81,17 @@ class Mlp:
             current_input = y[-1]
         return v, y
 
+    def predict(self, x):
+        """
+        does a forward pass of the input through the neural network but doesn't keep the outputs of each node thus
+        is faster than forward_pass()
+        :param x: the input
+        :return: y final outputs of last layer's nodes
+        """
+        current_input = np.array(x)
+        for layer in self.weights:
+            current_input = self.sigmoid(np.dot(layer, current_input))
+        return current_input
+
     def set_weights(self, weights):
         self.weights = weights.copy()

@@ -38,7 +38,13 @@ class TestMlp:
                    np.array([[0.4, -0.2]])]
         model.set_weights(weights)
         weights = None
-        assert model.weights != None
+        assert model.weights is not None
+
+    def test_predict(self):
+        model = model = Mlp(layer_layout=(2, 3, 2, 1))
+        u, result = model.forward_pass([2, 4])
+        result = result[-1]
+        assert result == model.predict([2, 4])
 
 
 if __name__ == '__main__':
