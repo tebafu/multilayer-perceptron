@@ -80,3 +80,6 @@ class Mlp:
             y.append(self.sigmoid(v[-1]))
             current_input = y[-1]
         return v, y
+
+    def set_weights(self, weights):
+        self.weights = weights.copy()
