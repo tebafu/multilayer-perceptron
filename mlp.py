@@ -97,6 +97,14 @@ class Mlp:
         self.weights = weights.copy()
 
     def structure_visualization(self):
+        """
+        A method to visualize the mlp, it uses pandas since it is prettier in the console of pycharm, it has not been
+        tested on any notebook or other IDE
+
+        Returns
+        -------
+        nothing
+        """
         print('MLP LAYOUT\n')
         length = len(self.layer_layout)
         depth = max(self.layer_layout) * 2 - 1
@@ -136,6 +144,23 @@ class Mlp:
         print(df.to_string(index=False, header=[f'------Layer-{x + 1}' for x in range(length)]))
 
     def weight_visualization(self):
+        """
+        Prints out the weights of the neural network in the following format
+        Layer 1
+            node 1
+            .
+            .
+            node n
+        .
+        .
+        Layer m
+            .
+            .
+            node k
+        Returns
+        -------
+        nothing
+        """
         print('WEIGHT VISUALIZATION\n')
         node_num = 1
         for idx, layer in enumerate(self.weights, start=1):
