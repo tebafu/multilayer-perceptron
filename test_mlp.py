@@ -4,6 +4,30 @@ import numpy as np
 
 class TestMlp:
 
+    def test_activation_fucntion_d(self):
+        m = Mlp(layer_layout=(2, 2))
+        assert m.activation_function_d(2) == 1
+        assert m.activation_function_d(0.1) == 1
+        assert m.activation_function_d(-0.3) == 0
+        assert m.activation_function_d(0) == 0
+        assert m.activation_function_d(-15) == 0
+        m = Mlp(layer_layout=(2, 2), activation_function='sigmoid')
+        assert m.activation_function_d(2) == m.sigmoid_derivative(2)
+        assert m.activation_function_d(12) == m.sigmoid_derivative(12)
+        assert m.activation_function_d(0.2) == m.sigmoid_derivative(0.2)
+        assert m.activation_function_d(-5) == m.sigmoid_derivative(-5)
+        assert m.activation_function_d(-0.4) == m.sigmoid_derivative(-0.4)
+
+    def test_activation_function(self):
+        m = Mlp(layer_layout=(2, 2))
+        assert m.activation_function(3) == 3
+        assert m.activation_function(15) == 15
+        assert m.activation_function(-3) == 0
+        m = Mlp(layer_layout=(2, 2), activation_function='sigmoid')
+        assert m.activation_function(3) == m.sigmoid(3)
+        assert m.activation_function(0.3) == m.sigmoid(0.3)
+        assert m.activation_function(-0.9) == m.sigmoid(-0.9)
+
     def test_relu(self):
         m = Mlp(layer_layout=(2, 2, 2))
         assert 0 == m.relu(-5)

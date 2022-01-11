@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 class Mlp:
     """
     A simple Mlp
@@ -22,11 +23,19 @@ class Mlp:
         initializes the weights for each node in each layer
     """
 
-    def __init__(self, layer_layout):
+    def __init__(self, layer_layout, activation_function='relu'):
 
         # np.random.seed(42) # for debugging purposes
 
         self.layer_layout = layer_layout
+
+        if activation_function == 'sigmoid':
+            self.activation_function = self.sigmoid
+            self.activation_function_d = self.sigmoid_derivative
+        else:
+            self.activation_function = self.relu
+            self.activation_function_d = self.relu_derivative
+
         self.weights = self.weight_initialization()
 
     def weight_initialization(self):
