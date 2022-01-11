@@ -3,6 +3,25 @@ import numpy as np
 
 
 class TestMlp:
+
+    def test_relu(self):
+        m = Mlp(layer_layout=(2, 2, 2))
+        assert 0 == m.relu(-5)
+        assert 0 == m.relu(0)
+        assert 0 == m.relu(-0.2)
+        assert 0 == m.relu(-3423423)
+        assert 15 == m.relu(15)
+        assert 1.2 == m.relu(1.2)
+
+    def test_relu_derivative(self):
+        m = Mlp(layer_layout=(2, 2, 2))
+        assert 0 == m.relu_derivative(-5)
+        assert 0 == m.relu_derivative(0)
+        assert 0 == m.relu_derivative(-0.2)
+        assert 0 == m.relu_derivative(-3423423)
+        assert 1 == m.relu_derivative(15)
+        assert 1 == m.relu_derivative(1.2)
+
     def test_sigmoid(self):
         m = Mlp(layer_layout=(2, 2, 2))
         assert round(0.3775406687981454353611, 8) == round(m.sigmoid(-0.5), 8)
