@@ -65,6 +65,14 @@ class Mlp:
         s = self.sigmoid(x) * (1 - self.sigmoid(x))
         return s
 
+    # noinspection PyMethodMayBeStatic
+    def relu(self, x):
+        return max(0, x)
+
+    # noinspection PyMethodMayBeStatic
+    def relu_derivative(self, x):
+        return (x > 0) * 1
+
     def forward_pass(self, x):
         """
         does a forward pass of the input through the neural network
