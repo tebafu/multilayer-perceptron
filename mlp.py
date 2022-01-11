@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 
 class Mlp:
     """
@@ -95,3 +95,52 @@ class Mlp:
 
     def set_weights(self, weights):
         self.weights = weights.copy()
+
+    def structure_visualization(self):
+        print('MLP LAYOUT\n')
+        length = len(self.layer_layout)
+        depth = max(self.layer_layout) * 2 - 1
+        center = depth // 2
+
+        visual = []
+        for i in range(depth):
+            temp = [" " for _ in range(length)]
+            visual.append(temp)
+
+        for idx, layer in enumerate(self.layer_layout):
+            if layer % 2 == 0:
+                for i in range(layer // 2):
+                    visual[center - 2 * (i + 1) + 1][idx] = "0"
+                    visual[center + 2 * (i + 1) - 1][idx] = "0"
+            else:
+                visual[center][idx] = "0"
+                for i in range(layer // 2):
+                    visual[center - 2 * (i + 1)][idx] = "0"
+                    visual[center + 2 * (i + 1)][idx] = "0"
+
+        node_num = 1
+        input_num = 1
+        for idx, layer in enumerate(self.layer_layout):
+            if idx == 0:
+                for i in range(depth):
+                    if visual[i][idx] == '0':
+                        visual[i][idx] = f'input {input_num}'
+                        input_num += 1
+            if idx != 0:
+                for i in range(depth):
+                    if visual[i][idx] == '0':
+                        visual[i][idx] = f'node {node_num}'
+                        node_num += 1
+
+        df = pd.DataFrame(visual)
+        print(df.to_string(index=False, header=[f'------Layer-{x + 1}' for x in range(length)]))
+
+    def weight_visualization(self):
+        print('WEIGHT VISUALIZATION\n')
+        node_num = 1
+        for idx, layer in enumerate(self.weights, start=1):
+            print(f'for layer: {idx}')
+            for node in layer:
+                print(f'    for node {node_num} the weights are: ')
+                print(f'        {node}\n\n')
+                node_num += 1
