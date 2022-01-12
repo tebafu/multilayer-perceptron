@@ -23,12 +23,12 @@ class Mlp:
         initializes the weights for each node in each layer
     """
 
-    def __init__(self, layer_layout, activation_function='relu'):
+    def __init__(self, layer_layout,learning_rate=0.01, activation_function='relu'):
 
         # np.random.seed(42) # for debugging purposes
 
         self.layer_layout = layer_layout
-
+        self.learning_rate = learning_rate
         if activation_function == 'sigmoid':
             self.activation_function = self.sigmoid
             self.activation_function_d = self.sigmoid_derivative
@@ -97,6 +97,30 @@ class Mlp:
             y.append(self.sigmoid(v[-1]))
             current_input = y[-1]
         return v, y
+
+    def back_propagation(self, x, target):
+
+        x = np.array(x)
+        target = np.array(target)
+
+        # Forward phase
+        v, y = self.forward_pass(x)
+        # Backward phase
+        layer_delta = (target - y[-1]) * self.sigmoid_derivative(v[-1])
+        deltas = [layer_delta]
+        for idx, layer in enumerate(reversed(self.weights[1:]), start=2):
+            layer_delta = np.dot(layer.T, layer_delta) * self.sigmoid_derivative(v[-idx])
+            deltas.append(layer_delta)
+        deltas = list(reversed(deltas))
+        # Update phase
+        y.insert(0, x)
+        new_weights = []
+        for prev_y, delta_layer, weight_layer in zip(y, deltas, self.weights):
+            node_weights = []
+            for delta, weights in zip(delta_layer, weight_layer):
+                node_weights.append(weights + self.learning_rate * delta * prev_y)
+            new_weights.append(node_weights)
+        self.weights = new_weights
 
     def predict(self, x):
         """
