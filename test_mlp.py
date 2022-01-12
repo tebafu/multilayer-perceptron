@@ -4,6 +4,44 @@ import numpy as np
 
 class TestMlp:
 
+    def test_back_propagation(self):
+        model = Mlp(layer_layout=(2, 3, 1), learning_rate=2)
+        weights = [np.array([[0.5, 0.3], [0.3, -0.5], [-0.4, -0.1]]), np.array([[0.4, -0.2, 0.2]])]
+        model.set_weights(weights)
+        sd = model.sigmoid_derivative
+
+        u, y = model.forward_pass([1, 2])
+
+        d4 = (1 - y[-1][0]) * sd(u[-1][0])
+        d1 = d4 * weights[1][0][0] * sd(u[0][0])
+        d2 = d4 * weights[1][0][1] * sd(u[0][1])
+        d3 = d4 * weights[1][0][2] * sd(u[0][2])
+
+        w_i1_n1 = 0.5 + 2 * d1 * 1
+        w_i2_n1 = 0.3 + 2 * d1 * 2
+        w_i1_n2 = 0.3 + 2 * d2 * 1
+        w_i2_n2 = -0.5 + 2 * d2 * 2
+        w_i1_n3 = -0.4 + 2 * d3 * 1
+        w_i2_n3 = -0.1 + 2 * d3 * 2
+        w_n1_n4 = 0.4 + 2 * d4 * y[0][0]
+        w_n2_n4 = -0.2 + 2 * d4 * y[0][1]
+        w_n3_n4 = 0.2 + 2 * d4 * y[0][2]
+
+        model.back_propagation([1, 2], 1)
+
+        assert round(model.weights[0][0][0], 6) == round(w_i1_n1, 6)
+        assert round(model.weights[0][0][1], 6) == round(w_i2_n1, 6)
+
+        assert round(model.weights[0][1][0], 6) == round(w_i1_n2, 6)
+        assert round(model.weights[0][1][1], 6) == round(w_i2_n2, 6)
+
+        assert round(model.weights[0][2][0], 6) == round(w_i1_n3, 6)
+        assert round(model.weights[0][2][1], 6) == round(w_i2_n3, 6)
+
+        assert round(model.weights[1][0][0], 6) == round(w_n1_n4, 6)
+        assert round(model.weights[1][0][1], 6) == round(w_n2_n4, 6)
+        assert round(model.weights[1][0][2], 6) == round(w_n3_n4, 6)
+
     def test_activation_fucntion_d(self):
         m = Mlp(layer_layout=(2, 2))
         assert m.activation_function_d(2) == 1
