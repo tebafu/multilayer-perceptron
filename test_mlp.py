@@ -5,7 +5,7 @@ import numpy as np
 class TestMlp:
 
     def test_back_propagation(self):
-        model = Mlp(layer_layout=(2, 3, 1), learning_rate=2)
+        model = Mlp(layer_layout=(2, 3, 1), learning_rate=2, activation_function='sigmoid')
         weights = [np.array([[0.5, 0.3], [0.3, -0.5], [-0.4, -0.1]]), np.array([[0.4, -0.2, 0.2]])]
         model.set_weights(weights)
         sd = model.sigmoid_derivative
@@ -97,7 +97,7 @@ class TestMlp:
         assert round(0.2493760401928919678215, 8) == round(m.sigmoid_derivative(-0.1), 8)
 
     def test_forward_pass(self):
-        model = Mlp(layer_layout=(2, 3, 2, 1))
+        model = Mlp(layer_layout=(2, 3, 2, 1), activation_function='sigmoid')
         weights = [np.array([[0.5, 0.3], [0.3, -0.5], [-0.4, -0.1]]), np.array([[0.5, 0.3, -0.4], [-0.4, -0.1, -0.2]]),
                    np.array([[0.4, -0.2]])]
         model.set_weights(weights)
@@ -122,7 +122,7 @@ class TestMlp:
         assert model.weights is not None
 
     def test_predict(self):
-        model = model = Mlp(layer_layout=(2, 3, 2, 1))
+        model = model = Mlp(layer_layout=(2, 3, 2, 1), activation_function='sigmoid')
         u, result = model.forward_pass([2, 4])
         result = result[-1]
         assert result == model.predict([2, 4])

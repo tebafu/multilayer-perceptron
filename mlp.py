@@ -94,7 +94,7 @@ class Mlp:
         y = []
         for layer in self.weights:
             v.append(np.dot(layer, current_input))
-            y.append(self.sigmoid(v[-1]))
+            y.append(self.activation_function(v[-1]))
             current_input = y[-1]
         return v, y
 
@@ -106,10 +106,10 @@ class Mlp:
         # Forward phase
         v, y = self.forward_pass(x)
         # Backward phase
-        layer_delta = (target - y[-1]) * self.sigmoid_derivative(v[-1])
+        layer_delta = (target - y[-1]) * self.activation_function_d(v[-1])
         deltas = [layer_delta]
         for idx, layer in enumerate(reversed(self.weights[1:]), start=2):
-            layer_delta = np.dot(layer.T, layer_delta) * self.sigmoid_derivative(v[-idx])
+            layer_delta = np.dot(layer.T, layer_delta) * self.activation_function_d(v[-idx])
             deltas.append(layer_delta)
         deltas = list(reversed(deltas))
         # Update phase
@@ -131,7 +131,7 @@ class Mlp:
         """
         current_input = np.array(x)
         for layer in self.weights:
-            current_input = self.sigmoid(np.dot(layer, current_input))
+            current_input = self.activation_function(np.dot(layer, current_input))
         return current_input
 
     def set_weights(self, weights):
