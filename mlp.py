@@ -1,3 +1,4 @@
+import copy
 import random
 
 import numpy as np
@@ -146,7 +147,7 @@ class Mlp:
                 self.back_propagation(x, y)
 
     def set_weights(self, weights):
-        self.weights = weights.copy()
+        self.weights = copy.deepcopy(weights)
 
     def structure_visualization(self):
         """

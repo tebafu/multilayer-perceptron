@@ -132,7 +132,7 @@ class TestMlp:
                    np.array([[0.4, -0.2]])]
         model.set_weights(weights)
         weights[0][0][0] = 4
-        assert model.weights[0][0][0] != 0.5
+        assert model.weights[0][0][0] != weights[0][0][0]
 
     def test_predict(self):
         model = Mlp(layer_layout=(2, 3, 2, 1), activation_function='sigmoid')
