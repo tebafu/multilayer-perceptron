@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pandas as pd
 
@@ -23,12 +25,13 @@ class Mlp:
         initializes the weights for each node in each layer
     """
 
-    def __init__(self, layer_layout,learning_rate=0.01, activation_function='relu'):
+    def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100):
 
         # np.random.seed(42) # for debugging purposes
 
         self.layer_layout = layer_layout
         self.learning_rate = learning_rate
+        self.epochs = epochs
         if activation_function == 'sigmoid':
             self.activation_function = self.sigmoid
             self.activation_function_d = self.sigmoid_derivative
@@ -98,6 +101,18 @@ class Mlp:
             current_input = y[-1]
         return v, y
 
+    def predict(self, x):
+        """
+        does a forward pass of the input through the neural network but doesn't keep the outputs of each node thus
+        is faster than forward_pass()
+        :param x: the input
+        :return: y final outputs of last layer's nodes
+        """
+        current_input = np.array(x)
+        for layer in self.weights:
+            current_input = self.activation_function(np.dot(layer, current_input))
+        return current_input
+
     def back_propagation(self, x, target):
 
         x = np.array(x)
@@ -113,6 +128,7 @@ class Mlp:
             deltas.append(layer_delta)
         deltas = list(reversed(deltas))
         # Update phase
+        # noinspection PyTypeChecker
         y.insert(0, x)
         new_weights = []
         for prev_y, delta_layer, weight_layer in zip(y, deltas, self.weights):
@@ -122,17 +138,12 @@ class Mlp:
             new_weights.append(node_weights)
         self.weights = new_weights
 
-    def predict(self, x):
-        """
-        does a forward pass of the input through the neural network but doesn't keep the outputs of each node thus
-        is faster than forward_pass()
-        :param x: the input
-        :return: y final outputs of last layer's nodes
-        """
-        current_input = np.array(x)
-        for layer in self.weights:
-            current_input = self.activation_function(np.dot(layer, current_input))
-        return current_input
+    def train(self, X, Y):
+        for epoch in range(self.epochs):
+            shuffled = list(zip(X, Y))
+            random.shuffle(shuffled)
+            for x, y in shuffled:
+                self.back_propagation(x, y)
 
     def set_weights(self, weights):
         self.weights = weights.copy()
