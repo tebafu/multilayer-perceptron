@@ -42,7 +42,7 @@ class TestMlp:
         assert round(model.weights[1][0][1], 6) == round(w_n2_n4, 6)
         assert round(model.weights[1][0][2], 6) == round(w_n3_n4, 6)
 
-    def test_activation_fucntion_d(self):
+    def test_activation_function_d(self):
         m = Mlp(layer_layout=(2, 2))
         assert m.activation_function_d(2) == 1
         assert m.activation_function_d(0.1) == 1
@@ -118,11 +118,19 @@ class TestMlp:
         weights = [np.array([[0.5, 0.3], [0.3, -0.5], [-0.4, -0.1]]), np.array([[0.5, 0.3, -0.4], [-0.4, -0.1, -0.2]]),
                    np.array([[0.4, -0.2]])]
         model.set_weights(weights)
-        weights = None
+        weights.clear()
         assert model.weights is not None
 
+    def test_set_weights2(self):
+        model = Mlp(layer_layout=(2, 3, 2, 1))
+        weights = [np.array([[0.5, 0.3], [0.3, -0.5], [-0.4, -0.1]]), np.array([[0.5, 0.3, -0.4], [-0.4, -0.1, -0.2]]),
+                   np.array([[0.4, -0.2]])]
+        model.set_weights(weights)
+        weights[0][0][0] = 4
+        assert model.weights[0][0][0] != 0.5
+
     def test_predict(self):
-        model = model = Mlp(layer_layout=(2, 3, 2, 1), activation_function='sigmoid')
+        model = Mlp(layer_layout=(2, 3, 2, 1), activation_function='sigmoid')
         u, result = model.forward_pass([2, 4])
         result = result[-1]
         assert result == model.predict([2, 4])
