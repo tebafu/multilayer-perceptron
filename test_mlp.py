@@ -42,6 +42,11 @@ class TestMlp:
         assert round(model.weights[1][0][1], 6) == round(w_n2_n4, 6)
         assert round(model.weights[1][0][2], 6) == round(w_n3_n4, 6)
 
+    def test_back_propagation2(self):
+        model = Mlp(layer_layout=(2, 3, 1), activation_function='sigmoid')
+        for _ in range(50):
+            model.back_propagation([2, 3], 1)
+
     def test_activation_function_d(self):
         m = Mlp(layer_layout=(2, 2))
         assert m.activation_function_d(2) == 1

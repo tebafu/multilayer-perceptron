@@ -135,7 +135,7 @@ class Mlp:
             node_weights = []
             for delta, weights in zip(delta_layer, weight_layer):
                 node_weights.append(weights + self.learning_rate * delta * prev_y)
-            new_weights.append(node_weights)
+            new_weights.append(np.array(node_weights))
         self.weights = new_weights
 
     def train(self, X, Y):
