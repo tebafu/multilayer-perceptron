@@ -7,28 +7,53 @@ import pandas as pd
 
 class Mlp:
     """
-    A simple Mlp
+    A multilayer perceptron
 
     Attributes
     ----------
     layer_layout : list
         a list containing the number of neurons per layer e.g (4, 15, 20, 3).
         first number (4 in the example) is the number of inputs
-        last number (3 in the example) is the output layer
-        the rest are the hidden layers (15 and 20 in the example)
+        last number (3) is the output layer
+        the rest are the hidden layers (15 and 20)
     weights : list
         a list with all the weights for each layer/node
         each element of said list represents a layer of the mlp as a numpy array.
         The numpy array is 2d and has the weights of each node as a row vector
+    learning_rate : float
+        the learning rate of the mlp that affects how much the gradients returned affect the weights
+    activation_function : pointer to method
+        points to the function applied to each node to determine its output
+    epochs
+        how many iterations the model with do while training
+
     Methods
     -------
-    weight_initialization()
-        initializes the weights for each node in each layer
+    predict(x)
+        produces the prediction of the model according to the input x
+    fit(X, Y)
+        trains the model on the data according to the labels Y
     """
 
     def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100,
                  weight_initialization='default'):
+        """
+        Constructor method.
 
+        Parameters
+        ----------
+        layer_layout : list or tuple
+            defines the size of the mlp with the first element being the input layer and the last the output.
+            ex. [4, 450, 200, 1] 4 input nodes, 2 hidden layers with 450 and 200 nodes eah and one output node
+        learning_rate : float
+            the learning rate of the mlp that affects how much the gradients returned affect the weights
+        activation_function : string
+            the function applied to each node to determine it's output
+        epochs: int
+            how many iterations the model with do while training
+        weight_initialization: string
+            the type of initialization for the weights of the model
+        """
         # np.random.seed(42) # for debugging purposes
 
         self.layer_layout = layer_layout
@@ -57,10 +82,13 @@ class Mlp:
 
     def weight_initialization(self):
         """
-        Initializes the weights for each node in the model between -0.5 and 0.5
+        Basic weight initialization with random values from range [-0.5, 0.5) for each node's weight
 
-        :return: list: a list with all the weights for each layer/node each element of said list represents a layer of
-        the mlp as a numpy array. the numpy array is 2d and has the weights of each node as a row vector
+        Returns
+        -------
+        List
+            the list contains 2d numpy arrays (as many as layers in the model -1), each numpy array contains a row
+            vector with each node's weights. Each weight is within -0.5 and 0.5
         """
         weights = []
         # starts from index 1 as the 0th element represents the input layer which has no weights
@@ -73,6 +101,15 @@ class Mlp:
         return weights
 
     def weight_initialization_xavier(self):
+        """
+        Weight initialization according to Xavier method
+
+        Returns
+        -------
+        List
+            the list contains 2d numpy arrays (as many as layers in the model -1), each numpy array contains a row
+            vector with each node's weights, each weight is between -1/sqrt(incoming_nodes) and 1/sqrt(incoming_nodes)
+        """
         weights = []
         for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
             neuron_weights = []
@@ -84,6 +121,15 @@ class Mlp:
         return weights
 
     def weight_initialization_he(self):
+        """
+        Weight initialization according to Kaiming He method
+
+        Returns
+        -------
+        List
+            the list contains 2d numpy arrays (as many as layers in the model -1), each numpy array contains a row
+            vector with each node's weights, each weight is between -sqrt(6/incoming_nodes) and sqrt(6/incoming_nodes)
+        """
         weights = []
         for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
             neuron_weights = []
@@ -97,52 +143,110 @@ class Mlp:
     # noinspection PyMethodMayBeStatic
     def sigmoid(self, x):
         """
-        basic sigmoid activation function
-        :param x: input
-        :return: sigmoid output
+        Sigmoid function : 1/(1+e^-x)
+
+        Parameters
+        ----------
+        x : float or nd.array
+            input
+
+        Returns
+        -------
+        float or nd.array
+            the result of the function applied to the input
         """
         s = 1.0 / (1.0 + np.exp(-x))
         return s
 
     def sigmoid_derivative(self, x):
         """
-        basic sigmoid derivative
-        :param x: input
-        :return: derivative of sigmoid
+        Sigmoid derivative function : sigmoid(x) * (1 - sigmoid(x))
+
+        Parameters
+        ----------
+        x : float or nd.array
+            input
+
+        Returns
+        -------
+        float or nd.array
+            the result of the function applied to the input
         """
         s = self.sigmoid(x) * (1 - self.sigmoid(x))
         return s
 
     # noinspection PyMethodMayBeStatic
     def relu(self, x):
+        """
+        relu function : max(0, x)
+
+        Parameters
+        ----------
+        x : float or nd.array
+            input
+
+        Returns
+        -------
+        float or nd.array
+            the result of the function applied to the input
+        """
         return np.maximum(0, x)
 
     # noinspection PyMethodMayBeStatic
     def relu_derivative(self, x):
+        """
+        relu function : 1 if x > 0 else 0
+
+        Parameters
+        ----------
+        x : float or nd.array
+            input
+
+        Returns
+        -------
+        float or nd.array
+            the result of the function applied to the input
+        """
         return (x > 0) * 1
 
     def forward_pass(self, x):
         """
-        does a forward pass of the input through the neural network
-        :param x: the input
-        :return: v the outputs of each node without the activation function applied to it
-        :return: y final outputs of each node
+        Does a forward pass of the input through the neural network
+
+        Parameters
+        ----------
+        x : list
+            contains the parameters for each input
+        Returns
+        -------
+        u : list
+            the activation signal of each node
+        y : list
+            the outputs of each node
         """
         current_input = np.array(x)
-        v = []
+        u = []
         y = []
         for layer in self.weights:
-            v.append(np.dot(layer, current_input))
-            y.append(self.activation_function(v[-1]))
+            u.append(np.dot(layer, current_input))
+            y.append(self.activation_function(u[-1]))
             current_input = y[-1]
-        return v, y
+        return u, y
 
     def predict(self, x):
         """
-        does a forward pass of the input through the neural network but doesn't keep the outputs of each node thus
-        is faster than forward_pass()
-        :param x: the input
-        :return: y final outputs of last layer's nodes
+        Does a forward pass of the input through the neural network but doesn't keep the activation signals or outputs
+        of each node thus is faster than forward_pass()
+
+        Parameters
+        ----------
+        x : list
+            contains the parameters for each input
+
+        Returns
+        -------
+        list
+            the final output of the model
         """
         current_input = np.array(x)
         for layer in self.weights:
@@ -150,7 +254,20 @@ class Mlp:
         return current_input
 
     def back_propagation(self, x, target):
-
+        """
+        Has 3 phases, forward pass, backward phase and update weights.
+            1) calls forward_pass() to get the activation signals and outputs of each node
+            2) calculates the loss of the model (output layer delta) and then passes the loss backwards to split the
+                delta between the nodes on the hidden layer
+            3) after finding the deltas it updates the weights all the weights according to the deltas and the input
+                of each node
+        Parameters
+        ----------
+        x : list
+            input of the model
+        target : list
+            the label corresponding to the input
+        """
         x = np.array(x)
         target = np.array(target)
 
@@ -174,7 +291,18 @@ class Mlp:
             new_weights.append(np.array(node_weights))
         self.weights = new_weights
 
-    def train(self, X, Y):
+    def fit(self, X, Y):
+        """
+        Trains the model according to the data X and the labels Y
+            does as many iterations over the data as the epochs specified, also shuffles the data each time
+
+        Parameters
+        ----------
+        X : list, tuple or nd.array
+
+        Y : list, tuple or nd.array
+
+        """
         for epoch in range(self.epochs):
             shuffled = list(zip(X, Y))
             random.shuffle(shuffled)
@@ -182,6 +310,15 @@ class Mlp:
                 self.back_propagation(x, y)
 
     def set_weights(self, weights):
+        """
+        Sets the specified weights as the models weights. Doesn't just use the given list but instead it does a
+        deepcopy
+
+        Parameters
+        ----------
+        weights : list of nd.arrays
+            list with as many nd.arrays as layers -1, each having as row vectors the weights of each node
+        """
         self.weights = copy.deepcopy(weights)
 
     def structure_visualization(self):
@@ -189,9 +326,6 @@ class Mlp:
         A method to visualize the mlp, it uses pandas since it is prettier in the console of pycharm, it has not been
         tested on any notebook or other IDE
 
-        Returns
-        -------
-        nothing
         """
         print('MLP LAYOUT\n')
         length = len(self.layer_layout)
@@ -245,9 +379,7 @@ class Mlp:
             .
             .
             node k
-        Returns
-        -------
-        nothing
+
         """
         print('WEIGHT VISUALIZATION\n')
         node_num = 1
