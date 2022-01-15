@@ -26,7 +26,8 @@ class Mlp:
         initializes the weights for each node in each layer
     """
 
-    def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100):
+    def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100,
+                 weight_initialization='default'):
 
         # np.random.seed(42) # for debugging purposes
 
@@ -40,7 +41,19 @@ class Mlp:
             self.activation_function = self.relu
             self.activation_function_d = self.relu_derivative
 
-        self.weights = self.weight_initialization()
+        if weight_initialization == 'default':
+            if activation_function == 'relu':
+                self.weights = self.weight_initialization_he()
+            elif activation_function == 'sigmoid':
+                self.weights = self.weight_initialization_xavier()
+            else:
+                self.weights = self.weight_initialization()
+        elif weight_initialization == 'he':
+            self.weights = self.weight_initialization_he()
+        elif weight_initialization == 'xavier':
+            self.weights = self.weight_initialization_xavier()
+        else:
+            self.weights = self.weight_initialization()
 
     def weight_initialization(self):
         """
@@ -56,6 +69,28 @@ class Mlp:
             for _ in range(neurons_per_layer):
                 neuron_weights.append(np.random.rand(self.layer_layout[idx - 1]) - 0.5)
             # numpy arrays to make dot products between layers easier
+            weights.append(np.array(neuron_weights))
+        return weights
+
+    def weight_initialization_xavier(self):
+        weights = []
+        for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
+            neuron_weights = []
+            for neuron in range(neurons_per_layer):
+                incoming_nodes = self.layer_layout[idx - 1]
+                r = 1 / np.sqrt(incoming_nodes)
+                neuron_weights.append(np.random.uniform(-r, r, incoming_nodes))
+            weights.append(np.array(neuron_weights))
+        return weights
+
+    def weight_initialization_he(self):
+        weights = []
+        for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
+            neuron_weights = []
+            for neuron in range(neurons_per_layer):
+                incoming_nodes = self.layer_layout[idx - 1]
+                r = np.sqrt(6 / incoming_nodes)
+                neuron_weights.append(np.random.uniform(-r, r, incoming_nodes))
             weights.append(np.array(neuron_weights))
         return weights
 
@@ -80,7 +115,7 @@ class Mlp:
 
     # noinspection PyMethodMayBeStatic
     def relu(self, x):
-        return max(0, x)
+        return np.maximum(0, x)
 
     # noinspection PyMethodMayBeStatic
     def relu_derivative(self, x):
