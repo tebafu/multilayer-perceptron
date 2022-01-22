@@ -35,7 +35,7 @@ class Mlp:
         trains the model on the data according to the labels Y
     """
 
-    def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100,
+    def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100, bias=False,
                  weight_initialization='default'):
         """
         Constructor method.
@@ -56,6 +56,7 @@ class Mlp:
         """
         # np.random.seed(42) # for debugging purposes
 
+        self.bias = bias
         self.layer_layout = layer_layout
         self.learning_rate = learning_rate
         self.epochs = epochs
@@ -95,7 +96,7 @@ class Mlp:
         for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
             neuron_weights = []
             for _ in range(neurons_per_layer):
-                neuron_weights.append(np.random.rand(self.layer_layout[idx - 1]) - 0.5)
+                neuron_weights.append(np.random.rand(self.layer_layout[idx - 1] + self.bias) - 0.5)
             # numpy arrays to make dot products between layers easier
             weights.append(np.array(neuron_weights))
         return weights
@@ -114,7 +115,7 @@ class Mlp:
         for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
             neuron_weights = []
             for neuron in range(neurons_per_layer):
-                incoming_nodes = self.layer_layout[idx - 1]
+                incoming_nodes = self.layer_layout[idx - 1] + self.bias
                 r = 1 / np.sqrt(incoming_nodes)
                 neuron_weights.append(np.random.uniform(-r, r, incoming_nodes))
             weights.append(np.array(neuron_weights))
@@ -134,7 +135,7 @@ class Mlp:
         for idx, neurons_per_layer in enumerate(self.layer_layout[1:], start=1):
             neuron_weights = []
             for neuron in range(neurons_per_layer):
-                incoming_nodes = self.layer_layout[idx - 1]
+                incoming_nodes = self.layer_layout[idx - 1] + self.bias
                 r = np.sqrt(6 / incoming_nodes)
                 neuron_weights.append(np.random.uniform(-r, r, incoming_nodes))
             weights.append(np.array(neuron_weights))
@@ -225,12 +226,16 @@ class Mlp:
             the outputs of each node
         """
         current_input = np.array(x)
+        if self.bias:
+            current_input = np.append(current_input, 1)
         u = []
         y = []
         for layer in self.weights:
             u.append(np.dot(layer, current_input))
             y.append(self.activation_function(u[-1]))
             current_input = y[-1]
+            if self.bias:
+                current_input = np.append(current_input, 1)
         return u, y
 
     def predict(self, x):
@@ -249,8 +254,12 @@ class Mlp:
             the final output of the model
         """
         current_input = np.array(x)
+        if self.bias:
+            current_input = np.append(current_input, 1)
         for layer in self.weights:
             current_input = self.activation_function(np.dot(layer, current_input))
+            if self.bias:
+                current_input = np.append(current_input, 1)
         return current_input
 
     def back_propagation(self, x, target):
@@ -277,12 +286,17 @@ class Mlp:
         layer_delta = (target - y[-1]) * self.activation_function_d(v[-1])
         deltas = [layer_delta]
         for idx, layer in enumerate(reversed(self.weights[1:]), start=2):
+            if self.bias:
+                layer = np.delete(layer, -1, 1)
             layer_delta = np.dot(layer.T, layer_delta) * self.activation_function_d(v[-idx])
             deltas.append(layer_delta)
         deltas = list(reversed(deltas))
         # Update phase
         # noinspection PyTypeChecker
         y.insert(0, x)
+        if self.bias:
+            for idx, layer in enumerate(y):
+                y[idx] = np.append(layer, 1)
         new_weights = []
         for prev_y, delta_layer, weight_layer in zip(y, deltas, self.weights):
             node_weights = []
