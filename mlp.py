@@ -26,7 +26,10 @@ class Mlp:
         points to the function applied to each node to determine its output
     epochs
         how many iterations the model with do while training
-
+    weight_initialization: string
+            the type of initialization for the weights of the model
+    random_state : int
+        sets the seed for numpy.random affecting the weight initialization
     Methods
     -------
     predict(x)
@@ -36,7 +39,7 @@ class Mlp:
     """
 
     def __init__(self, layer_layout, learning_rate=0.01, activation_function='relu', epochs=100, bias=False,
-                 weight_initialization='default'):
+                 weight_initialization='default', random_state=None):
         """
         Constructor method.
 
@@ -53,8 +56,12 @@ class Mlp:
             how many iterations the model with do while training
         weight_initialization: string
             the type of initialization for the weights of the model
+        random_state : int
+            sets the seed for numpy.random affecting the weight initialization
         """
-        # np.random.seed(42) # for debugging purposes
+
+        if random_state is not None and random_state >= 0:
+            np.random.seed(random_state)
 
         self.bias = bias
         self.layer_layout = layer_layout
