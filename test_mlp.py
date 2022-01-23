@@ -13,6 +13,16 @@ def weight_dim_compare(dim, weights, bias):
 
 class TestMlp:
 
+    def test_random_state(self):
+        model1 = Mlp(layer_layout=(5, 1), random_state=42)
+        model2 = Mlp(layer_layout=(5, 1), random_state=42)
+        model3 = Mlp(layer_layout=(5, 1), random_state=0)
+        model4 = Mlp(layer_layout=(5, 1), random_state=-1)
+
+        assert (model1.weights[0][0] == model2.weights[0][0]).all()
+        assert not (model1.weights[0][0] == model3.weights[0][0]).all()
+        assert not (model2.weights[0][0] == model3.weights[0][0]).all()
+
     def test_bias_weight_initialization(self):
         dim = (2, 4, 2, 1)
         model = Mlp(layer_layout=dim, bias=True, weight_initialization='random')
