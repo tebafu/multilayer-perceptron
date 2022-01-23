@@ -2,7 +2,94 @@ from mlp import Mlp
 import numpy as np
 
 
+def weight_dim_compare(dim, weights, bias):
+
+    for idx, layer in enumerate(weights):
+        if idx != 0:
+            assert len(layer) == dim[idx + 1]
+            for node in layer:
+                assert len(node) == dim[idx] + bias
+
+
 class TestMlp:
+
+    def test_bias_weight_initialization(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, True)
+
+    def test_bias_weight_initialization_xavier(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, True)
+
+    def test_bias_weight_initialization_he(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, True)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=True, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, True)
+
+    def test_weight_initialization(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='random')
+        weight_dim_compare(dim, model.weights, False)
+
+    def test_weight_initialization_xavier(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='xavier')
+        weight_dim_compare(dim, model.weights, False)
+
+    def test_weight_initialization_he(self):
+        dim = (2, 4, 2, 1)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 250, 40)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, False)
+
+        dim = (15, 15, 40, 30, 150, 2)
+        model = Mlp(layer_layout=dim, bias=False, weight_initialization='he')
+        weight_dim_compare(dim, model.weights, False)
 
     def test_back_propagation(self):
         model = Mlp(layer_layout=(2, 3, 1), learning_rate=2, activation_function='sigmoid')
